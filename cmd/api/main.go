@@ -28,7 +28,11 @@ func main() {
 	}
 	defer db.Close()
 
-	// Redis
+	migrationDir := "./migrations"
+	if err := database.MigrateDB(connString, migrationDir); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
+
 	redisAddr := fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port)
 	rdb, err := database.NewRedis(ctx, redisAddr, cfg.Redis.Password, cfg.Redis.DB)
 	if err != nil {
