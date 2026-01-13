@@ -7,11 +7,14 @@ import (
 	"time"
 
 	"zenkiet/zen-attendance-server/config"
+	_ "zenkiet/zen-attendance-server/docs"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
+
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 type Server struct {
@@ -42,18 +45,40 @@ func (s *Server) setupMiddleware() {
 	s.router.Use(middleware.Logger)
 	s.router.Use(middleware.Recoverer)
 	s.router.Use(middleware.Timeout(60 * time.Second))
+
+	s.router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			next.ServeHTTP(w, r)
+		})
+	})
 }
 
 func (s *Server) setupRoutes() {
+	s.router.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("doc.json"),
+	))
+
 	s.router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		if err := s.db.Ping(r.Context()); err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		if err := s.rdb.Ping(r.Context()).Err(); err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 	})
 }
 
 func (s *Server) Start() error {
 	s.server = &http.Server{
-		Addr:    ":" + s.cfg.Port,
-		Handler: s.router,
+		Addr:         ":" + s.cfg.Port,
+		Handler:      s.router,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	fmt.Printf("Server starting on port %s\n", s.cfg.Port)

@@ -9,6 +9,7 @@ import (
 )
 
 type Config struct {
+	Host     string
 	Port     string
 	Postgres struct {
 		Host     string
@@ -33,6 +34,7 @@ func Load() *Config {
 	}
 
 	return &Config{
+		Host: getEnv("HOST", "localhost"),
 		Port: getEnv("PORT", "8080"),
 		Postgres: struct {
 			Host     string
