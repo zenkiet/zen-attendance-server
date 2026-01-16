@@ -24,7 +24,10 @@ type Config struct {
 		Password string
 		DB       int
 	}
-	PasetoKey string
+	Paseto struct {
+		SymmetricKey string
+		Implicit     []byte
+	}
 }
 
 func Load() *Config {
@@ -60,7 +63,13 @@ func Load() *Config {
 			Password: getEnv("REDIS_PASSWORD", ""),
 			DB:       getEnvAsInt("REDIS_DB", 0),
 		},
-		PasetoKey: getEnv("PASETO_KEY", ""), // openssl rand -hex 32
+		Paseto: struct {
+			SymmetricKey string
+			Implicit     []byte
+		}{
+			SymmetricKey: getEnv("PASETO_SYMMETRIC_KEY", ""),
+			Implicit:     []byte(getEnv("PASETO_IMPLICIT", "")),
+		},
 	}
 }
 

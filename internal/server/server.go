@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"zenkiet/zen-attendance-server/config"
-	_ "zenkiet/zen-attendance-server/docs"
 	"zenkiet/zen-attendance-server/handler"
+	"zenkiet/zen-attendance-server/pkg/token"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
@@ -25,15 +25,17 @@ type Server struct {
 	db     *pgxpool.Pool
 	rdb    *redis.Client
 	cfg    *config.Config
+	tm     *token.Maker
 	server *http.Server
 }
 
-func New(cfg *config.Config, db *pgxpool.Pool, rdb *redis.Client) *Server {
+func New(cfg *config.Config, db *pgxpool.Pool, rdb *redis.Client, tm *token.Maker) *Server {
 	s := &Server{
 		router: chi.NewRouter(),
 		db:     db,
 		rdb:    rdb,
 		cfg:    cfg,
+		tm:     tm,
 	}
 
 	s.setupMiddleware()

@@ -13,6 +13,7 @@ import (
 	"zenkiet/zen-attendance-server/config"
 	"zenkiet/zen-attendance-server/internal/server"
 	"zenkiet/zen-attendance-server/pkg/database"
+	"zenkiet/zen-attendance-server/pkg/token"
 )
 
 func main() {
@@ -44,7 +45,12 @@ func main() {
 		}
 	}()
 
-	srv := server.New(cfg, db, rdb)
+	tm, err := token.NewMaker(cfg.Paseto.SymmetricKey, cfg.Paseto.Implicit)
+	if err != nil {
+		log.Fatalf("Failed to create token maker: %v", err)
+	}
+
+	srv := server.New(cfg, db, rdb, tm)
 
 	go func() {
 		if err := srv.Start(); err != nil && err != http.ErrServerClosed {
