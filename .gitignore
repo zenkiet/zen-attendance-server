@@ -31,8 +31,9 @@ go.work.sum
 # .idea/
 # .vscode/
 
-# Containers
-data/
-
 # Others
 .DS_Store
+/data
+/bin
+/binary
+/tmp
