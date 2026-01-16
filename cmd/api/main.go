@@ -15,28 +15,6 @@ import (
 	"zenkiet/zen-attendance-server/pkg/database"
 )
 
-// @contact.name	API Support
-// @contact.url	http://www.zenkiet.com/support
-// @contact.email
-// @title           Zen Attendance API
-// @version         1.0
-// @description     This is the API documentation for the Zen Attendance system.s
-// @termsOfService  https://github.com/zenkiet/zen-attendace
-
-// @contact.name   API Support
-// @contact.url    https://github.com/zenkiet
-// @contact.email  kietgolx65234@gmail.com
-
-// @license.name  MIT
-// @license.url   https://opensource.org/licenses/MIT
-
-// @host      localhost:8080
-// @BasePath  /api/v1
-
-// @securityDefinitions.basic  BasicAuth
-
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	cfg := config.Load()
 

@@ -15,7 +15,6 @@ deps:
 	go install golang.org/x/tools/cmd/goimports@latest
 	go install github.com/evilmartians/lefthook@latest
 	go install github.com/air-verse/air@latest
-	go install github.com/swaggo/swag/cmd/swag@latest
 
 	@echo " > Setting up git hooks..."
 	lefthook install
@@ -38,6 +37,3 @@ format:
 lint:
 	@echo " > Linting..."
 	golangci-lint run ./...
-
-swag:
-	swag init -g cmd/api/main.go

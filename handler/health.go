@@ -1,21 +1,20 @@
 package handler
 
-import (
-	"net/http"
-
-	"zenkiet/zen-attendance-server/pkg/response"
-)
+import "context"
 
 type HealthResponse struct {
-	Status  string `json:"status"`
-	Service string `json:"service"`
-	Version string `json:"version"`
+	Body struct {
+		Status  string `json:"status" example:"ok"`
+		Service string `json:"service" example:"Zen Attendance API"`
+		Version string `json:"version" example:"1.0.0"`
+	}
 }
 
-func HandleHealth(w *http.ResponseWriter, r *http.Request) {
-	response.JSON(*w, http.StatusOK, HealthResponse{
-		Status:  "ok",
-		Service: "zen-attendance-server",
-		Version: "1.0.0",
-	})
+func (h *Handler) HealthCheck(ctx context.Context, input *struct{}) (*HealthResponse, error) {
+	resp := &HealthResponse{}
+	resp.Body.Status = "ok"
+	resp.Body.Service = "Zen Attendance API"
+	resp.Body.Version = "1.0.0"
+
+	return resp, nil
 }

@@ -10,16 +10,18 @@ import (
 	_ "zenkiet/zen-attendance-server/docs"
 	"zenkiet/zen-attendance-server/handler"
 
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humachi"
+	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
-
-	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 type Server struct {
 	router *chi.Mux
+	doc    huma.API
 	db     *pgxpool.Pool
 	rdb    *redis.Client
 	cfg    *config.Config
@@ -35,6 +37,10 @@ func New(cfg *config.Config, db *pgxpool.Pool, rdb *redis.Client) *Server {
 	}
 
 	s.setupMiddleware()
+
+	humaCfg := huma.DefaultConfig("Zen Attendance API", "1.0.0")
+	s.doc = humachi.New(s.router, humaCfg)
+
 	s.setupRoutes()
 
 	return s
@@ -46,23 +52,24 @@ func (s *Server) setupMiddleware() {
 	s.router.Use(middleware.Logger)
 	s.router.Use(middleware.Recoverer)
 	s.router.Use(middleware.Timeout(60 * time.Second))
-
-	s.router.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-			next.ServeHTTP(w, r)
-		})
-	})
 }
 
 func (s *Server) setupRoutes() {
-	s.router.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("doc.json"),
-	))
+	h := handler.New(s.db, s.rdb)
 
-	s.router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		handler.HandleHealth(&w, r)
-	})
+	// Health Check
+	huma.Register(s.doc, huma.Operation{
+		OperationID: "health-check",
+		Method:      http.MethodGet,
+		Path:        "/health",
+		Summary:     "Check Status Server",
+		Tags:        []string{"System"},
+	}, h.HealthCheck)
+
+	// API v1 routes
+	// s.router.Route("/api/v1", func(r chi.Router) {
+
+	// })
 }
 
 func (s *Server) Start() error {
@@ -75,6 +82,7 @@ func (s *Server) Start() error {
 	}
 
 	fmt.Printf("Server starting on port %s\n", s.cfg.Port)
+	fmt.Printf("OpenAPI Doc: http://localhost:%s/docs\n", s.cfg.Port)
 	return s.server.ListenAndServe()
 }
 
