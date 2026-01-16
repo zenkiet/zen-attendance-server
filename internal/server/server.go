@@ -8,6 +8,7 @@ import (
 
 	"zenkiet/zen-attendance-server/config"
 	_ "zenkiet/zen-attendance-server/docs"
+	"zenkiet/zen-attendance-server/handler"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -60,15 +61,7 @@ func (s *Server) setupRoutes() {
 	))
 
 	s.router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		if err := s.db.Ping(r.Context()); err != nil {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			return
-		}
-		if err := s.rdb.Ping(r.Context()).Err(); err != nil {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
+		handler.HandleHealth(&w, r)
 	})
 }
 
