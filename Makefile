@@ -39,5 +39,5 @@ lint:
 	@echo " > Linting..."
 	golangci-lint run ./...
 
-docs:
+swag:
 	swag init -g cmd/api/main.go

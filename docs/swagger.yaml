@@ -1,4 +1,22 @@
+basePath: /api/v1
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: kietgolx65234@gmail.com
+    name: API Support
+    url: https://github.com/zenkiet
+  description: This is the API documentation for the Zen Attendance system.s
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://github.com/zenkiet/zen-attendace
+  title: Zen Attendance API
+  version: "1.0"
 paths: {}
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"
